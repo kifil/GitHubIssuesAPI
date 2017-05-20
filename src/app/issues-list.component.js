@@ -19,8 +19,7 @@ var IssuesListComponent = (function () {
     }
     IssuesListComponent.prototype.ngOnInit = function () {
         var _this = this;
-        this.issuesService.getAll().subscribe(
-        /* happy path */ function (i) { return _this.issues = i; }, 
+        this.issuesService.getAll().subscribe(function (i) { return _this.issues = i; }, 
         /* error path */ function (e) { return _this.errorMessage = e; }, 
         /* onComplete */ function () { return _this.isLoading = false; });
     };

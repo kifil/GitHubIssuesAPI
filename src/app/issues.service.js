@@ -15,19 +15,23 @@ var IssuesService = (function () {
     function IssuesService(http) {
         this.http = http;
         this.baseUrl = 'https://api.github.com/';
-        //this.urlParams.set('assignee', "chuckjaz");
-        //this.urlParams.set('since', getISOTime7DaysAgo());
     }
-    //https://api.github.com/repos/octocat/Hello-World/issues/1347
-    //2017-05-20T01:25:18Z
+    //returns all issues within last 7 days for the angular repo
     IssuesService.prototype.getAll = function () {
         var urlParams = new http_1.URLSearchParams();
-        urlParams.set('since', getISOTime7DaysAgo());
+        urlParams.set('since', this.getISOTime7DaysAgo());
         var issues$ = this.http
             .get(this.baseUrl + "repos/angular/angular/issues", { headers: this.getHeaders(), search: urlParams })
             .map(this.mapIssues)
             .catch(this.handleError);
         return issues$;
+    };
+    IssuesService.prototype.getISOTime7DaysAgo = function () {
+        var daysPast = 7;
+        var currentDate = new Date();
+        var previousDate = new Date(currentDate.getTime() - (daysPast * 24 * 60 * 60 * 1000));
+        var isoTime = previousDate.toISOString();
+        return isoTime;
     };
     IssuesService.prototype.getHeaders = function () {
         var headers = new http_1.Headers();
@@ -35,9 +39,6 @@ var IssuesService = (function () {
         return headers;
     };
     IssuesService.prototype.mapIssues = function (response) {
-        // uncomment to simulate error:
-        // throw new Error('ups! Force choke!');
-        console.log(response.json());
         return response.json().map(toIssue);
     };
     IssuesService.prototype.handleError = function (error) {
@@ -62,7 +63,6 @@ function toIssue(r) {
         userLogin: getLoginFromUser(r.user),
         assigneeLogin: getLoginFromUser(r.assignee),
     });
-    console.log('Parsed issue2:', issue);
     return issue;
 }
 function getLoginFromUser(userData) {
@@ -72,27 +72,4 @@ function getLoginFromUser(userData) {
     }
     return username;
 }
-function getISOTime7DaysAgo() {
-    var daysPast = 7;
-    var currentDate = new Date();
-    var previousDate = new Date(currentDate.getTime() - (daysPast * 24 * 60 * 60 * 1000));
-    var isoTime = previousDate.toISOString();
-    return isoTime;
-}
-//function toIssue(r: any): Issue {
-//	let issue = <Issue>({
-//		id: extractId(r),
-//		url: r.url,
-//		name: r.name,
-//		//weight: r.mass,
-//		//height: r.height,
-//	});
-//	//console.log('Parsed issue:', issue);
-//	return issue;
-//}
-//function mapIssue(response: Response): Issue {
-//	// toPerson looks just like in the previous example
-//	return toIssue(response.json());
-//}
-// this could also be a private method of the component class
 //# sourceMappingURL=issues.service.js.map

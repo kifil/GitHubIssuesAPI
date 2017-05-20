@@ -16,7 +16,7 @@ export class IssuesListComponent implements OnInit{
 
   ngOnInit() {
       this.issuesService.getAll().subscribe(
-          /* happy path */ i => this.issues = i,
+         i => this.issues = i,
          /* error path */ e => this.errorMessage = e,
          /* onComplete */() => this.isLoading = false
       );

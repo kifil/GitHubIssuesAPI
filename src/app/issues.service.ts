@@ -8,22 +8,26 @@ export class IssuesService {
     private baseUrl: string = 'https://api.github.com/';
 
     constructor(private http: Http) {
-        //this.urlParams.set('assignee', "chuckjaz");
-        //this.urlParams.set('since', getISOTime7DaysAgo());
     }
 
-    //https://api.github.com/repos/octocat/Hello-World/issues/1347
-    //2017-05-20T01:25:18Z
-
-    getAll(): Observable<Issue[]> {
+    //returns all issues within last 7 days for the angular repo
+    public getAll(): Observable<Issue[]> {
         let urlParams: URLSearchParams = new URLSearchParams();
-        urlParams.set('since', getISOTime7DaysAgo());
+        urlParams.set('since', this.getISOTime7DaysAgo());
 
         let issues$ = this.http
             .get( this.baseUrl + "repos/angular/angular/issues", { headers: this.getHeaders(), search: urlParams })
             .map(this.mapIssues)
             .catch(this.handleError);
         return issues$;
+    }
+
+    public getISOTime7DaysAgo(): string {
+        let daysPast: number = 7;
+        let currentDate: Date = new Date();
+        let previousDate: Date = new Date(currentDate.getTime() - (daysPast * 24 * 60 * 60 * 1000));
+        let isoTime: string = previousDate.toISOString();
+        return isoTime;
     }
 
 	private getHeaders() {
@@ -33,10 +37,6 @@ export class IssuesService {
     }
 
     private mapIssues(response: Response): Issue[] {
-      // uncomment to simulate error:
-      // throw new Error('ups! Force choke!');
-
-      console.log(response.json());
       return response.json().map(toIssue);
     }
     
@@ -59,7 +59,6 @@ function toIssue(r: any): Issue {
         userLogin: getLoginFromUser(r.user),
         assigneeLogin: getLoginFromUser(r.assignee),
     });
-    console.log('Parsed issue2:', issue);
     return issue;
 }
 
@@ -71,32 +70,3 @@ function toIssue(r: any): Issue {
 
     return username;
 }
-
-function getISOTime7DaysAgo() : string {
-    let daysPast: number = 7;
-    let currentDate: Date = new Date();
-    let previousDate: Date =  new Date(currentDate.getTime() - (daysPast * 24 * 60 * 60 * 1000));
-    let isoTime: string =  previousDate.toISOString();
-    return isoTime;
-}
-
-//function toIssue(r: any): Issue {
-//	let issue = <Issue>({
-//		id: extractId(r),
-//		url: r.url,
-//		name: r.name,
-//		//weight: r.mass,
-//		//height: r.height,
-//	});
-//	//console.log('Parsed issue:', issue);
-//	return issue;
-//}
-
-
-
-//function mapIssue(response: Response): Issue {
-//	// toPerson looks just like in the previous example
-//	return toIssue(response.json());
-//}
-
-// this could also be a private method of the component class
