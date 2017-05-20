@@ -14,16 +14,17 @@ var Rx_1 = require("rxjs/Rx");
 var IssuesService = (function () {
     function IssuesService(http) {
         this.http = http;
-        this.baseUrl = 'http://swapi.co/api';
-        this.urlParams = new http_1.URLSearchParams();
+        this.baseUrl = 'https://api.github.com/';
         //this.urlParams.set('assignee', "chuckjaz");
-        this.urlParams.set('since', "2017-05-18T15:25:18Z"); //todo, last 7 days
+        //this.urlParams.set('since', getISOTime7DaysAgo());
     }
     //https://api.github.com/repos/octocat/Hello-World/issues/1347
     //2017-05-20T01:25:18Z
     IssuesService.prototype.getAll = function () {
+        var urlParams = new http_1.URLSearchParams();
+        urlParams.set('since', getISOTime7DaysAgo());
         var issues$ = this.http
-            .get("https://api.github.com/repos/angular/angular/issues", { headers: this.getHeaders(), search: this.urlParams })
+            .get(this.baseUrl + "repos/angular/angular/issues", { headers: this.getHeaders(), search: urlParams })
             .map(this.mapIssues)
             .catch(this.handleError);
         return issues$;
@@ -56,7 +57,6 @@ function toIssue(r) {
     var issue = ({
         id: r.number,
         url: r.html_url,
-        name: r.title,
         title: r.title,
         body: r.body,
         userLogin: getLoginFromUser(r.user),
@@ -71,6 +71,13 @@ function getLoginFromUser(userData) {
         username = userData.login;
     }
     return username;
+}
+function getISOTime7DaysAgo() {
+    var daysPast = 7;
+    var currentDate = new Date();
+    var previousDate = new Date(currentDate.getTime() - (daysPast * 24 * 60 * 60 * 1000));
+    var isoTime = previousDate.toISOString();
+    return isoTime;
 }
 //function toIssue(r: any): Issue {
 //	let issue = <Issue>({

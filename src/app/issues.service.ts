@@ -5,20 +5,22 @@ import { Issue } from './issue';
 
 @Injectable()
 export class IssuesService {
-    private baseUrl: string = 'http://swapi.co/api';
-    private urlParams: URLSearchParams = new URLSearchParams();
+    private baseUrl: string = 'https://api.github.com/';
 
     constructor(private http: Http) {
         //this.urlParams.set('assignee', "chuckjaz");
-        this.urlParams.set('since', "2017-05-18T15:25:18Z"); //todo, last 7 days
+        //this.urlParams.set('since', getISOTime7DaysAgo());
     }
 
     //https://api.github.com/repos/octocat/Hello-World/issues/1347
     //2017-05-20T01:25:18Z
 
     getAll(): Observable<Issue[]> {
+        let urlParams: URLSearchParams = new URLSearchParams();
+        urlParams.set('since', getISOTime7DaysAgo());
+
         let issues$ = this.http
-            .get("https://api.github.com/repos/angular/angular/issues", { headers: this.getHeaders(), search: this.urlParams })
+            .get( this.baseUrl + "repos/angular/angular/issues", { headers: this.getHeaders(), search: urlParams })
             .map(this.mapIssues)
             .catch(this.handleError);
         return issues$;
@@ -39,12 +41,12 @@ export class IssuesService {
     }
     
     private handleError(error: any) {
-      let errorMsg = error.message || `An unkown error has occurred!`
-      console.error(errorMsg);
+        let errorMsg: string = error.message || `An unkown error has occurred!`
+        console.error(errorMsg);
 
-      // throw an application level error
-      return Observable.throw(errorMsg);
-  }
+        // throw an application level error
+        return Observable.throw(errorMsg);
+    }
 
 }
 
@@ -52,7 +54,6 @@ function toIssue(r: any): Issue {
     let issue = <Issue>({
         id: r.number,
         url: r.html_url,
-        name: r.title,
         title: r.title,
         body: r.body,
         userLogin: getLoginFromUser(r.user),
@@ -63,12 +64,20 @@ function toIssue(r: any): Issue {
 }
 
  function getLoginFromUser(userData: any): string {
-    let username = "(none)";
+    let username: string = "(none)";
     if (userData) {
         username = userData.login;
     }
 
     return username;
+}
+
+function getISOTime7DaysAgo() : string {
+    let daysPast: number = 7;
+    let currentDate: Date = new Date();
+    let previousDate: Date =  new Date(currentDate.getTime() - (daysPast * 24 * 60 * 60 * 1000));
+    let isoTime: string =  previousDate.toISOString();
+    return isoTime;
 }
 
 //function toIssue(r: any): Issue {
