@@ -1,5 +1,4 @@
-﻿
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { Http, Response, Headers } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 import { Issue } from './issue';
@@ -9,21 +8,32 @@ export class IssuesService {
 	private baseUrl: string = 'http://swapi.co/api';
 
 	constructor(private http: Http) {
-	}
+    }
+
+    //https://api.github.com/repos/octocat/Hello-World/issues/1347
+
+    getAll2(): Observable<Issue[]> {
+        console.log("hello");
+        let issues$ = this.http
+            .get("https://api.github.com/repos/angular/angular/issues", { headers: this.getHeaders() })
+            .map(logIssues)
+            .catch(handleError);
+        return issues$;
+    }
 
 	getAll(): Observable<Issue[]> {
-		let people$ = this.http
+		let issues$ = this.http
 			.get(`${this.baseUrl}/people`, { headers: this.getHeaders() })
 			.map(mapIssues)
 			.catch(handleError);
-		return people$;
+		return issues$;
 	}
 
 	get(id: number): Observable<Issue> {
-		let person$ = this.http
+		let issue$ = this.http
 			.get(`${this.baseUrl}/people/${id}`, { headers: this.getHeaders() })
 			.map(mapIssue);
-		return person$;
+		return issue$;
 	}
 
 	//save(issue: Issue): Observable<Response> {
@@ -49,6 +59,44 @@ function mapIssues(response: Response): Issue[] {
 	return response.json().results.map(toIssue)
 }
 
+function logIssues(response: Response): Issue[] {
+    // uncomment to simulate error:
+    // throw new Error('ups! Force choke!');
+
+    // The response of the API has a results
+    // property with the actual results
+    //return response.json().results.map(toIssue)
+    console.log(response.json());
+    return response.json().map(toIssue2);
+}
+
+function toIssue2(r: any): Issue {
+    //var assign = "Unassigned!";
+    //var use = "No User!";
+
+    //if (r.assignee) {
+    //    assign = r.assignee.login
+    //}
+
+    //if (r.use) {
+    //    assign = r.user.login
+    //}
+
+    let issue = <Issue>({
+        id: r.number,
+        url: r.html_url,
+        name: r.title,
+        title: r.title,
+        body: r.body,
+        userLogin: getLoginFromUser(r.user), //null checking
+        assigneeLogin: getLoginFromUser(r.assignee), //null checking
+        //weight: r.mass,
+        //height: r.height,
+    });
+    console.log('Parsed issue2:', issue);
+    return issue;
+}
+
 function toIssue(r: any): Issue {
 	let issue = <Issue>({
 		id: extractId(r),
@@ -66,6 +114,22 @@ function toIssue(r: any): Issue {
 function extractId(issueData: any) {
 	let extractedId = issueData.url.replace('http://swapi.co/api/people/', '').replace('/', '');
 	return parseInt(extractedId);
+}
+
+// to avoid breaking the rest of our app
+// I extract the id from the person url
+//function extractId2(issueData: any) {
+//    let extractedId = issueData.url.replace('https://github.com/angular/angular/issues/', '').replace('/', '');
+//    return parseInt(extractedId);
+//}
+
+function getLoginFromUser(userData: any) {
+    let username = "No user";
+    if (userData) {
+        username = userData.login;
+    }
+
+    return username;
 }
 
 function mapIssue(response: Response): Issue {

@@ -16,18 +16,27 @@ var IssuesService = (function () {
         this.http = http;
         this.baseUrl = 'http://swapi.co/api';
     }
+    //https://api.github.com/repos/octocat/Hello-World/issues/1347
+    IssuesService.prototype.getAll2 = function () {
+        console.log("hello");
+        var issues$ = this.http
+            .get("https://api.github.com/repos/angular/angular/issues", { headers: this.getHeaders() })
+            .map(logIssues)
+            .catch(handleError);
+        return issues$;
+    };
     IssuesService.prototype.getAll = function () {
-        var people$ = this.http
+        var issues$ = this.http
             .get(this.baseUrl + "/people", { headers: this.getHeaders() })
             .map(mapIssues)
             .catch(handleError);
-        return people$;
+        return issues$;
     };
     IssuesService.prototype.get = function (id) {
-        var person$ = this.http
+        var issue$ = this.http
             .get(this.baseUrl + "/people/" + id, { headers: this.getHeaders() })
             .map(mapIssue);
-        return person$;
+        return issue$;
     };
     //save(issue: Issue): Observable<Response> {
     //	// this won't actually work because the StarWars API doesn't
@@ -54,6 +63,36 @@ function mapIssues(response) {
     // property with the actual results
     return response.json().results.map(toIssue);
 }
+function logIssues(response) {
+    // uncomment to simulate error:
+    // throw new Error('ups! Force choke!');
+    // The response of the API has a results
+    // property with the actual results
+    //return response.json().results.map(toIssue)
+    console.log(response.json());
+    return response.json().map(toIssue2);
+}
+function toIssue2(r) {
+    //var assign = "Unassigned!";
+    //var use = "No User!";
+    //if (r.assignee) {
+    //    assign = r.assignee.login
+    //}
+    //if (r.use) {
+    //    assign = r.user.login
+    //}
+    var issue = ({
+        id: r.number,
+        url: r.html_url,
+        name: r.title,
+        title: r.title,
+        body: r.body,
+        userLogin: getLoginFromUser(r.user),
+        assigneeLogin: getLoginFromUser(r.assignee),
+    });
+    console.log('Parsed issue2:', issue);
+    return issue;
+}
 function toIssue(r) {
     var issue = ({
         id: extractId(r),
@@ -68,6 +107,19 @@ function toIssue(r) {
 function extractId(issueData) {
     var extractedId = issueData.url.replace('http://swapi.co/api/people/', '').replace('/', '');
     return parseInt(extractedId);
+}
+// to avoid breaking the rest of our app
+// I extract the id from the person url
+//function extractId2(issueData: any) {
+//    let extractedId = issueData.url.replace('https://github.com/angular/angular/issues/', '').replace('/', '');
+//    return parseInt(extractedId);
+//}
+function getLoginFromUser(userData) {
+    var username = "No user";
+    if (userData) {
+        username = userData.login;
+    }
+    return username;
 }
 function mapIssue(response) {
     // toPerson looks just like in the previous example
