@@ -1,0 +1,18 @@
+﻿<section>
+  <section *ngIf="isLoading && !errorMessage">
+    Retrieving data...
+  </section>
+  <ul>
+    <h1>new issues </h1>
+    <li *ngFor="let issue of issues">
+      <div>{{issue.id}}</div>
+      <div>{{issue.body}}</div>
+      <div>{{issue.userLogin}}</div>
+      <div>{{issue.assigneeLogin}}</div>
+      <a href={{issue.url}}>{{issue.title}}</a>
+    </li>
+  </ul>
+  <section *ngIf="errorMessage">
+    {{errorMessage}}
+  </section>
+</section>
