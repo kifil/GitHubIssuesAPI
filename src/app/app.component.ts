@@ -10,7 +10,7 @@ import { IssuesService } from './issues.service';
                 <p class="lead">
                     {{description}}
                     <br>
-                    Last update time: {{lastUpdateTime}}
+                    Pulling issues updated after: {{lastUpdateTime}}
                 </p>
             </div>
         </div>

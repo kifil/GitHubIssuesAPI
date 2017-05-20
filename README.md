@@ -15,4 +15,4 @@ This API will display the github issues for the last 7 days for the [Angular Rep
 
 # Special Thanks
 
-Thanks to for https://www.barbarianmeetscoding.com his tutorials!
+Thanks to https://www.barbarianmeetscoding.com for their tutorials!
