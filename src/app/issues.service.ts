@@ -1,21 +1,25 @@
 ﻿import { Injectable } from '@angular/core';
-import { Http, Response, Headers } from '@angular/http';
+import { Http, Response, Headers, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 import { Issue } from './issue';
 
 @Injectable()
 export class IssuesService {
-	private baseUrl: string = 'http://swapi.co/api';
+    private baseUrl: string = 'http://swapi.co/api';
+    private urlParams: URLSearchParams = new URLSearchParams();
 
-	constructor(private http: Http) {
+    constructor(private http: Http) {
+        this.urlParams.set('assignee', "chuckjaz");
+        this.urlParams.set('since', "2017-05-18T15:25:18Z"); //todo, last 7 days
     }
 
     //https://api.github.com/repos/octocat/Hello-World/issues/1347
+    //2017-05-20T01:25:18Z
 
     getAll2(): Observable<Issue[]> {
         console.log("hello");
         let issues$ = this.http
-            .get("https://api.github.com/repos/angular/angular/issues", { headers: this.getHeaders() })
+            .get("https://api.github.com/repos/angular/angular/issues", { headers: this.getHeaders(), search: this.urlParams })
             .map(logIssues)
             .catch(handleError);
         return issues$;
@@ -71,27 +75,14 @@ function logIssues(response: Response): Issue[] {
 }
 
 function toIssue2(r: any): Issue {
-    //var assign = "Unassigned!";
-    //var use = "No User!";
-
-    //if (r.assignee) {
-    //    assign = r.assignee.login
-    //}
-
-    //if (r.use) {
-    //    assign = r.user.login
-    //}
-
     let issue = <Issue>({
         id: r.number,
         url: r.html_url,
         name: r.title,
         title: r.title,
         body: r.body,
-        userLogin: getLoginFromUser(r.user), //null checking
-        assigneeLogin: getLoginFromUser(r.assignee), //null checking
-        //weight: r.mass,
-        //height: r.height,
+        userLogin: getLoginFromUser(r.user), 
+        assigneeLogin: getLoginFromUser(r.assignee), 
     });
     console.log('Parsed issue2:', issue);
     return issue;
@@ -105,7 +96,7 @@ function toIssue(r: any): Issue {
 		//weight: r.mass,
 		//height: r.height,
 	});
-	console.log('Parsed issue:', issue);
+	//console.log('Parsed issue:', issue);
 	return issue;
 }
 

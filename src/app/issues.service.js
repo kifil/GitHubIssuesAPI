@@ -15,12 +15,16 @@ var IssuesService = (function () {
     function IssuesService(http) {
         this.http = http;
         this.baseUrl = 'http://swapi.co/api';
+        this.urlParams = new http_1.URLSearchParams();
+        this.urlParams.set('assignee', "chuckjaz");
+        this.urlParams.set('since', "2017-05-18T15:25:18Z"); //todo, last 7 days
     }
     //https://api.github.com/repos/octocat/Hello-World/issues/1347
+    //2017-05-20T01:25:18Z
     IssuesService.prototype.getAll2 = function () {
         console.log("hello");
         var issues$ = this.http
-            .get("https://api.github.com/repos/angular/angular/issues", { headers: this.getHeaders() })
+            .get("https://api.github.com/repos/angular/angular/issues", { headers: this.getHeaders(), search: this.urlParams })
             .map(logIssues)
             .catch(handleError);
         return issues$;
@@ -73,14 +77,6 @@ function logIssues(response) {
     return response.json().map(toIssue2);
 }
 function toIssue2(r) {
-    //var assign = "Unassigned!";
-    //var use = "No User!";
-    //if (r.assignee) {
-    //    assign = r.assignee.login
-    //}
-    //if (r.use) {
-    //    assign = r.user.login
-    //}
     var issue = ({
         id: r.number,
         url: r.html_url,
@@ -99,7 +95,7 @@ function toIssue(r) {
         url: r.url,
         name: r.name,
     });
-    console.log('Parsed issue:', issue);
+    //console.log('Parsed issue:', issue);
     return issue;
 }
 // to avoid breaking the rest of our app
