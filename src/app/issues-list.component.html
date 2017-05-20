@@ -1,25 +1,34 @@
 ﻿<div class="container">
-  <section *ngFor="let issue of issues" class="panel-outline">
-    <div class="panel-heading bg-info lead">Issue: {{issue.id}} - {{issue.title}}</div>
-    <div class="panel-body">
-      <div class="row">
-        <div class="col-md-12">
-          <blockquote>
-            <p>{{issue.body}}</p>
-          </blockquote>
+  <section *ngIf="errorMessage">
+    <div>{{errorMessage}}</div>
+  </section>
+  <section *ngIf="loading">
+    <div>Loading issues...</div>
+  </section>
+
+  <section *ngIf="!loading">
+    <section *ngFor="let issue of issues" class="panel-outline">
+      <div class="panel-heading bg-info lead">Issue: {{issue.id}} - {{issue.title}}</div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-12">
+            <blockquote>
+              <p>{{issue.body}}</p>
+            </blockquote>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <h4>User: {{issue.userLogin}}</h4>
+          </div>
+          <div class="col-md-6">
+            <h4>Assignee: {{issue.assigneeLogin}}</h4>
+          </div>
         </div>
       </div>
-      <div class="row">
-        <div class="col-md-6">
-          <h4>User: {{issue.userLogin}}</h4>
-        </div>
-        <div class="col-md-6">
-          <h4>Assignee: {{issue.assigneeLogin}}</h4>
-        </div>
+      <div class="panel-footer">
+        <a href="{{issue.url}}" target="_blank" type="button" class="btn btn-default">View Issue</a>                                                                                                                                                                                &nbsp;
       </div>
-    </div>
-    <div class="panel-footer">
-      <a href="{{issue.url}}" target="_blank" type="button" class="btn btn-default">View Issue</a>                                                                                                                                                                                &nbsp;
-    </div>
+    </section>
   </section>
 </div>
